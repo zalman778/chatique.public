@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package CustomerGrpc;
+
+// The customer service definition.
+service CustomerService {
+  rpc SignUp (SignUpRequest) returns (EmptyMessage); //рега
+  rpc SignIn (SignInRequest) returns (SignInResponse); //авторизация
+
+  //получаем список друзей
+  rpc GetFriends (EmptyMessage) returns (FriendsResponse);
+  //получаем заявки в друзья
+  rpc GetFriendshipRequests (EmptyMessage) returns (FriendshipRequestsResponse);
+  //создаем заявку в друзья
+  rpc RequestFriendship (RequestFriendshipRequest) returns (EmptyMessage);
+  //реация на заявку в друзья
+  rpc HandleFriendship (HandleFriendshipRequest) returns (EmptyMessage);
+  //удаление друга
+  rpc RemoveFriend (RemoveFriendRequest) returns (EmptyMessage);
+
+  //поиск юзера по частичному совпадению по username
+  rpc SearchUser (SearchUserRequest) returns (SearchUserResponse);
+
+  rpc SetPushToken (SetPushTokenRequest) returns (EmptyMessage);
+
+  //chat
+  rpc CreateChat (CreateChatRequest) returns (CreateChatResponse);
+  rpc LeaveChat (ChatIdRequest) returns (EmptyMessage);
+  rpc GetChatHistory (ChatHistoryRequest) returns (ChatHistoryResponse);
+
+  rpc GetChats (EmptyMessage) returns (ChatsResponse);
+  rpc GetChatInfo (ChatIdRequest) returns (ChatResponseItem);
+  rpc MessageEvents (stream MessageEvent) returns (stream MessageEvent); //messages payload, also mentions (@all)
+  rpc MessageMetaEvents (stream MessageMetaEvent) returns (stream MessageMetaEvent); //editions, removal (for me, or for all), clear chat
+}
+
+message MessageMetaEvent {
+  string id = 1;
+  string object_id = 2; //id объекта, например, айди редактируемого сообщения
+  string chat_id = 3;
+  MessageMetaType type = 4;
+  string value = 5;
+  int64 create_date = 6;
+  int64 user_from_id = 7;
+  bytes bytes_payload = 8;
+}
+
+enum MessageMetaType {
+  //e2e connection
+  WELCOME_HANDSHAKE_REQUEST = 0;
+  WELCOME_HANDSHAKE_RESPONSE = 1;
+  GROUP_WELCOME_HANDSHAKE_REQUEST = 2;
+  GROUP_WELCOME_HANDSHAKE_RESPONSE = 3;
+  REQUEST_KEY_SHARING = 4;
+  SHARING_SECRET_KEY = 5;
+
+  //call
+  REQUEST_VOICE_CALL = 6;
+  VOICE_CALL_RESPONSE = 7; //accept or decline
+  VOICE_CALL_PAYLOAD = 8;
+  VIDEO_CALL_PAYLOAD = 9;
+
+  MESSAGE_EDITED = 10;
+  MESSAGE_REMOVED = 11;
+  TYPING_MESSAGE = 12;
+}
+
+message ChatsResponse {
+  repeated ChatResponseItem items = 1;
+}
+
+message ChatResponseItem {
+  string id = 1; //idDialog in db
+  string caption = 2; //opponnent username in 1v1, configurable name in groups
+  ChatResponseItemType type = 3;
+  ChatResponseItemGroupType group_type = 4;
+  string last_message = 5;
+  int64 last_message_key_version = 6;
+  int64 create_date = 7;
+  repeated ChatMember members = 8;
+}
+
+enum ChatResponseItemType {
+  OPEN = 0;
+  SECRET = 1;
+}
+
+enum ChatResponseItemGroupType {
+  DUAL = 0;
+  GROUP = 1;
+}
+
+message ChatMember {
+  int32 userId = 1;
+  string username = 2;
+  bool is_communicating = 3;
+}
+
+message ChatIdRequest {
+  string id = 1;
+}
+
+message CreateChatRequest {
+  ChatResponseItemType type = 1;
+  repeated int32 members = 2;
+}
+
+message CreateChatResponse {
+  string id = 1;
+  repeated int32 members_online = 2;
+}
+
+message MessageEvent {
+  string id = 1;
+  string dialog_id = 2;
+  int32 user_from_id = 3;
+  string value = 4;
+  int64 create_date = 5;
+  int64 key_version = 6;
+  string user_from = 7;
+}
+
+message ChatHistoryRequest {
+  string dialog_id = 1;
+  int64 page = 2;
+  int64 limit = 3; //items per page
+}
+
+message ChatHistoryResponse {
+  repeated MessageEvent items = 1;
+  int64 total_pages = 2;
+}
+
+message EmptyMessage {}
+
+message SignUpRequest {
+  string username = 1;
+  string password = 2;
+  string bio = 3;
+  string email = 4;
+}
+
+message SignInResponse {
+  string token = 1;
+  int32 id = 2;
+  string username = 3;
+}
+
+message SignInRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message FriendsResponse {
+  repeated FriendResponseItem items = 1;
+}
+
+message FriendResponseItem {
+  string id = 1;
+  string username = 2;
+}
+
+message FriendshipRequestsResponse {
+  repeated FriendshipRequestsItem items = 1;
+}
+
+enum FriendshipRequestType {
+  INPUT = 0;
+  OUTPUT = 1;
+}
+
+message FriendshipRequestsItem {
+  string id = 1;
+  string username = 2;
+  FriendshipRequestType type = 3;
+}
+
+message RequestFriendshipRequest {
+  int32 id = 1;
+}
+
+enum HandleFriendshipRequestType {
+  ACCEPT = 0;
+  DECLINE = 1;
+}
+
+message HandleFriendshipRequest {
+  string id = 1;
+  HandleFriendshipRequestType type = 2;
+}
+
+message SearchUserRequest {
+  string username = 1;
+}
+
+message SetPushTokenRequest {
+  string token = 1;
+}
+
+message SearchUserResponse {
+  repeated SearchUserResponseItem items = 1;
+}
+
+message SearchUserResponseItem {
+  int32 id = 1;
+  string username = 2;
+}
+
+message RemoveFriendRequest {
+  int32 id = 1;
+}

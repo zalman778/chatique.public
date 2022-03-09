@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Chatique</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="go_to_sign_up">Go to Sign Up</string>
+    <string name="sign_up">Sign up</string>
+    <string name="go_to_login">Go to login</string>
+    <string name="bio">Bio</string>
+    <string name="email">Email</string>
+    <string name="alert_accept_fr_req">Do you really want to accept this friend request?</string>
+    <string name="decline_accept_fr_req">Do you really want to decline this friendship request?</string>
+    <string name="add_to_friends">Add to friends</string>
+    <string name="add_to_friends_confirmation">Do you really want to send friendship request?</string>
+    <string name="input">Input</string>
+    <string name="output">Output</string>
+    <string name="remove_friend_confirmation">Do you really want to remove this friend?</string>
+
+    <string name="biometric_prompt_title">Verify your identity</string>
+    <string name="biometric_prompt_subtitle">Use your Biometric ID to continue</string>
+    <string name="biometric_prompt_description">Biometric authentication is required to proceed</string>
+    <string name="biometric_prompt_cancel">Switch to enter a PIN</string>
+    <string name="open_chat">Open chat</string>
+    <string name="open_secret_chat">Open secret chat</string>
+    <string name="default_notification_channel_id">default</string>
+    <string name="accept_input_call">Do you want to accept input call</string>
+</resources>

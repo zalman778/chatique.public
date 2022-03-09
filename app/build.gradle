@@ -1,0 +1,150 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.google.protobuf'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "com.hwx.chatique"
+        minSdk 21
+        targetSdk 31
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField 'String', "ServerAddr", SERVER_ADDR
+        buildConfigField 'Integer', "ServerPort", SERVER_PORT
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+    }
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+    }
+}
+
+// https://github.com/grpc/grpc-java/blob/v1.29.0/examples/android/routeguide/app/build.gradle#L26
+protobuf {
+    protoc { artifact = "com.google.protobuf:protoc:$protobuf_protoc_version" }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpc_version"
+        }
+        grpckt {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:$grpckt_version"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { option 'lite' }
+            }
+            task.plugins {
+                grpc { // Options added to --grpc_out
+                    option 'lite'
+                }
+                grpckt {
+                    option "lite"
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+
+    // Hilt
+    implementation "com.google.dagger:dagger:$hilt_version"
+    kapt "com.google.dagger:dagger-compiler:$hilt_version"
+    api 'com.google.dagger:dagger-android:2.37'
+    api 'com.google.dagger:dagger-android-support:2.37'
+    kapt 'com.google.dagger:dagger-android-processor:2.37'
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:2.37"
+
+    // grpc
+    implementation "com.google.protobuf:protobuf-javalite:$protobuf_protoc_version"
+    api ("io.grpc:grpc-kotlin-stub-lite:$grpckt_stub_lite_version") {
+        exclude group: 'javax.annotation'
+    }
+    api "javax.annotation:jsr250-api:1.0"
+    api "io.grpc:grpc-stub:$grpc_version"
+    api "io.grpc:grpc-android:$grpc_version"
+    api "io.grpc:grpc-protobuf-lite:$grpc_version"
+    api ("io.grpc:grpc-okhttp:$grpc_version") {
+        exclude group: 'javax.annotation'
+    }
+
+    //compose
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02'
+    implementation 'androidx.paging:paging-compose:1.0.0-alpha14'
+
+    // compose Navigation
+    implementation "androidx.navigation:navigation-compose:2.4.0-beta02"
+
+    //compose hilt
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0-beta01'
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    //lifecycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+
+    // biometric
+    implementation "androidx.biometric:biometric:$biometric_version"
+
+    //google services
+    implementation platform('com.google.firebase:firebase-bom:29.0.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging'
+
+    //other
+    implementation 'com.google.code.gson:gson:2.8.8'
+
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+}
